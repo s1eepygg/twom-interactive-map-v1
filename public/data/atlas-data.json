@@ -1,5 +1,131 @@
 {
   "version": 1,
-  "items": [],
-  "markers": []
+  "items": [
+    {
+      "id": "item-1788842998081-p35nt",
+      "name": "疯狂冲刺1",
+      "image": "data:image/webp;base64,UklGRngEAABXRUJQVlA4WAoAAAAwAAAAHQAAGwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBITQAAAAEPMP8REcJRbdtOc4GU4ZfwpHxpRFqkfAkM03eaiIj+R7YpubTksSYvS6gT/Uwf9I26UA/q9d/9FxqOWDAhrKHnpfLQMhwTS3KZkpEAAFZQOCA0AgAAEA0AnQEqHgAcAD5VJI5Fo6IhFAVUOAVEtgBOmUI599c/FX8gOcM2D7Z5KfAA2wHmA6Cm8Abxd+5dcoYsRbApb/ia+ev+t7gX8b/qnoAeq/9cvY8/U9bewYWDq87Hz4OmEoLvaq1DrVWNETIJVKEbqAAA/vd5ZQuv/3ccHc5hSQ3DQpIRLExezimTHx0oziWOGdj7ijVKdY/6EHCvDO5IvXFNhveQTqeNZHifw+e1uYg9Ga9rY1XnQ3T4mjKa9Nhvux1rsfvMv6XvTAAz9EPfUX7nN96ldvyMbQVEbPYUAs8soZsAz2DMYC5W7HZrub3q5r3fkQVdnF6XvSYtL8Kn/xi7jxqKs6GX14PfErByWWMWQVoWO8U9bnbnNcej3fOvFNIiVxXggW4KGXt2q7PJdG1/E1Y3HEzdmk9Muf8QGVre4l6KvKiXjda8Wl53efpEELomklhrxjr1gz2f/7UvX/wAGDUAn26cUT4skZfzGIsr26d9nyEsrM9hE2cGU/NPXyb9Bm3PXjxi+P6ahjVZKZg1dAdjJqDWIAgsA5zd42YziO90RjuRfyVy17nlc90LMSd7XbZmkDweyXogVDMrH0Nyv5vWFk5CCQAr1e322z3AUaHDPmVNmLS1Aif0jhNbO14oAiog7tIapUwkb4oDhu1mKNKWMYFQ13eE1+j8f8GaDNIFx3jXSH16/XeIknF3W1FF3Byepi3x+/o0BNxY8LAMRhj7AlquFPMvcp+NW0a5AAAA",
+      "custom": true
+    }
+  ],
+  "markers": [
+    {
+      "mapId": "zone2",
+      "name": "木林森林",
+      "category": "portal",
+      "x": 46.23662038278809,
+      "y": 3.557574028533672,
+      "summary": "Custom map marker.",
+      "itemIds": [],
+      "itemMode": "sells",
+      "id": "custom-1788839848152-d8yxy",
+      "details": [
+        "Added in Marker Studio",
+        "Saved on this device"
+      ],
+      "custom": true
+    },
+    {
+      "mapId": "zone2",
+      "name": "蘑菇洞",
+      "category": "portal",
+      "x": 89.6956176270629,
+      "y": 23.939751328613667,
+      "summary": "Custom map marker.",
+      "itemIds": [],
+      "itemMode": "sells",
+      "id": "custom-1788842680411-enxwi",
+      "details": [
+        "Added in Marker Studio",
+        "Saved on this device"
+      ],
+      "custom": true
+    },
+    {
+      "mapId": "zone2",
+      "name": "木木森",
+      "category": "portal",
+      "x": 4.37966882944643,
+      "y": 50.94770911019999,
+      "summary": "Custom map marker.",
+      "itemIds": [],
+      "itemMode": "drops",
+      "id": "custom-1788842707784-rgjsi",
+      "details": [
+        "Added in Marker Studio",
+        "Saved on this device"
+      ],
+      "custom": true
+    },
+    {
+      "mapId": "zone2",
+      "name": "燈塔島",
+      "category": "portal",
+      "x": 94.9512202223986,
+      "y": 48.31990781253212,
+      "summary": "Custom map marker.",
+      "itemIds": [],
+      "itemMode": "sells",
+      "id": "custom-1788842723963-p6pfy",
+      "details": [
+        "Added in Marker Studio",
+        "Saved on this device"
+      ],
+      "custom": true
+    },
+    {
+      "mapId": "zone2",
+      "name": "沙灘",
+      "category": "portal",
+      "x": 57.11088153598145,
+      "y": 96.3502759754613,
+      "summary": "Custom map marker.",
+      "itemIds": [],
+      "itemMode": "sells",
+      "id": "custom-1788842731171-sozp8",
+      "details": [
+        "Added in Marker Studio",
+        "Saved on this device"
+      ],
+      "custom": true
+    },
+    {
+      "mapId": "zone2",
+      "name": "巨无霸蘑菇",
+      "category": "monster",
+      "x": 32.935109597437155,
+      "y": 83.94121429202976,
+      "summary": "Custom map marker.",
+      "image": "data:image/webp;base64,UklGRnoFAABXRUJQVlA4WAoAAAAwAAAAGwAAJgAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBIWwAAAAEPMP8REcJxbdtOcgD1DSmBNpxBWWYtjVIogaHhrX/MNUT0P1gDh78bYAAuP8PPXEEG2HKxY7Rn8sysn+qqTWp8irYfv0Nt1CgaqXHVqvykVpPyGT1zsQc7yAAAVlA4ICgDAAAQEQCdASocACcAPlUij0SjoiEVVQA4BUS2AFiSoKgOwBxfWgXeTJQ6oHqA2wHmA/ZzfAOkA/aP2APK8/bf4Ff3G9Ii7aKov4fHzpnNrZ/mfhJRF+aZmWef/+t7gf8l/p/+z66voFfrMZzN3bW8UBkDIbuDumKzMiRumL9SrvE53U8b7iuWocsv0FbLsvV/tU4AAP7/nXBZfbzX/8SpfHJ9a8eiB1bSGMS7SS7/Y901rZDxoeVn68EHfYBUXfbEf7Y/gECS8TkYfKKTgsz4HW7PyMubZxCuEtDHv9HEHJ8TqDl0coMb4l5r9c7dOfEYKWlTf218zk3zVB0VwB7HnNOu9z2jy9/Z3OP/e/850xnRpG6gq5aydb36fe6p1+Il11H3RrJQzr4q5sU+NmTY7PVqeyPoLprGp3XKC73O87T/qaxBLiPXx3PbLk4F0bkMsrOVUw6stL4s9v9mLw0/2P5uIgNPN/Lq2diuEPN/VY4JZXewK7Yb/C8UFEL+pgPuF/8Kkrfz969ySlis+QZGbbus+t6q3fs9uHvKneB7B9fuxds45vjt7ali4zWD2PL3K6fOunjYQU+C/HNhaziOUJ/ujnxbpl3spg3maZ9q1o6FF0AWCBfmOVcia+RTiJAPwvPObrGDZblVKV+gniqKKm3b3YbZLO9bn58TJvmyMOEK+Ql10N6/43QSF5FTh4HJOvkzQiXgrb+mK+eXxdBKaWx9vFvQ3ha/6+deb8G1t0+5tCKdKBVJ66YT7VG+rA7XMbMdzv8TejO7l4cPKScf7w9ILT/m8IkM6moO5PrKTdcVf51Knrl8/1DgcVUP/kbrYHX0ZDHep9ymugcoFeeUiWMrL4VRNOQYQchUQ91eBjtmLxsbZVsYRj3yQ3STv30X8VZR/7oFeOYpsyuoOfut2rccZV1MSiy58FEUVRc8Xbg6wpS9tPKK8QUvMTmxbyhb539CPh59NX3/yN8wFBV14rQThx5brN4LteFeldXSz3U8yQbMq+78bKtUMiPtP/5pWpZXrOeavoR3+58STSVnNQ2bwho+4Jd7iKKZvRw5CQLDf+Zt39TcrIAA",
+      "spawnTime": "18分鐘",
+      "itemIds": [],
+      "itemMode": "drops",
+      "id": "custom-1788842942425-2d3i5",
+      "details": [
+        "Added in Marker Studio",
+        "Saved on this device"
+      ],
+      "custom": true
+    },
+    {
+      "mapId": "zone2",
+      "name": "巨无霸蘑菇",
+      "category": "monster",
+      "x": 83.56408126583788,
+      "y": 88.46687208245774,
+      "summary": "Custom map marker.",
+      "image": "data:image/webp;base64,UklGRnoFAABXRUJQVlA4WAoAAAAwAAAAGwAAJgAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBIWwAAAAEPMP8REcJxbdtOcgD1DSmBNpxBWWYtjVIogaHhrX/MNUT0P1gDh78bYAAuP8PPXEEG2HKxY7Rn8sysn+qqTWp8irYfv0Nt1CgaqXHVqvykVpPyGT1zsQc7yAAAVlA4ICgDAAAQEQCdASocACcAPlUij0SjoiEVVQA4BUS2AFiSoKgOwBxfWgXeTJQ6oHqA2wHmA/ZzfAOkA/aP2APK8/bf4Ff3G9Ii7aKov4fHzpnNrZ/mfhJRF+aZmWef/+t7gf8l/p/+z66voFfrMZzN3bW8UBkDIbuDumKzMiRumL9SrvE53U8b7iuWocsv0FbLsvV/tU4AAP7/nXBZfbzX/8SpfHJ9a8eiB1bSGMS7SS7/Y901rZDxoeVn68EHfYBUXfbEf7Y/gECS8TkYfKKTgsz4HW7PyMubZxCuEtDHv9HEHJ8TqDl0coMb4l5r9c7dOfEYKWlTf218zk3zVB0VwB7HnNOu9z2jy9/Z3OP/e/850xnRpG6gq5aydb36fe6p1+Il11H3RrJQzr4q5sU+NmTY7PVqeyPoLprGp3XKC73O87T/qaxBLiPXx3PbLk4F0bkMsrOVUw6stL4s9v9mLw0/2P5uIgNPN/Lq2diuEPN/VY4JZXewK7Yb/C8UFEL+pgPuF/8Kkrfz969ySlis+QZGbbus+t6q3fs9uHvKneB7B9fuxds45vjt7ali4zWD2PL3K6fOunjYQU+C/HNhaziOUJ/ujnxbpl3spg3maZ9q1o6FF0AWCBfmOVcia+RTiJAPwvPObrGDZblVKV+gniqKKm3b3YbZLO9bn58TJvmyMOEK+Ql10N6/43QSF5FTh4HJOvkzQiXgrb+mK+eXxdBKaWx9vFvQ3ha/6+deb8G1t0+5tCKdKBVJ66YT7VG+rA7XMbMdzv8TejO7l4cPKScf7w9ILT/m8IkM6moO5PrKTdcVf51Knrl8/1DgcVUP/kbrYHX0ZDHep9ymugcoFeeUiWMrL4VRNOQYQchUQ91eBjtmLxsbZVsYRj3yQ3STv30X8VZR/7oFeOYpsyuoOfut2rccZV1MSiy58FEUVRc8Xbg6wpS9tPKK8QUvMTmxbyhb539CPh59NX3/yN8wFBV14rQThx5brN4LteFeldXSz3U8yQbMq+78bKtUMiPtP/5pWpZXrOeavoR3+58STSVnNQ2bwho+4Jd7iKKZvRw5CQLDf+Zt39TcrIAA",
+      "spawnTime": "18 分鐘",
+      "itemIds": [
+        "item-1788842998081-p35nt"
+      ],
+      "itemMode": "drops",
+      "id": "custom-1788843071357-k10jd",
+      "details": [
+        "Added in Marker Studio",
+        "Saved on this device"
+      ],
+      "custom": true
+    }
+  ]
 }
