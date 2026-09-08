@@ -44,6 +44,14 @@ const markerStorageKey = 'twom-custom-markers-v2';
 const itemStorageKey = 'twom-custom-items-v1';
 const categories = Object.keys(categoryMeta) as MarkerCategory[];
 
+function mergeUniqueById<T extends { id: string }>(...groups: T[][]): T[] {
+  const records = new Map<string, T>();
+  for (const group of groups) {
+    for (const record of group) records.set(record.id, record);
+  }
+  return [...records.values()];
+}
+
 function getBounds(map: MapDefinition): LatLngBoundsExpression {
   return [[0, 0], [map.height, map.width]];
 }
@@ -218,8 +226,10 @@ export default function MapExplorer() {
 
   const selectedMap = maps.find((map) => map.id === selectedMapId) || maps[0];
   const bounds = getBounds(selectedMap);
-  const allItems = useMemo(() => [...starterItems, ...publishedItems, ...customItems], [customItems, publishedItems]);
-  const allMarkers = useMemo(() => [...starterMarkers, ...publishedMarkers, ...customMarkers], [customMarkers, publishedMarkers]);
+  // A record can exist in both the published JSON and browser localStorage after
+  // an export. Keep one copy so counts, icons, and linked drops stay accurate.
+  const allItems = useMemo(() => mergeUniqueById(starterItems, customItems, publishedItems), [customItems, publishedItems]);
+  const allMarkers = useMemo(() => mergeUniqueById(starterMarkers, customMarkers, publishedMarkers), [customMarkers, publishedMarkers]);
   const mapMarkers = allMarkers.filter((marker) => marker.mapId === selectedMap.id);
   const shownMarkers = mapMarkers.filter((marker) => visible.has(marker.category));
 
