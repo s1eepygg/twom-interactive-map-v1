@@ -376,7 +376,11 @@ export default function MapExplorer() {
   }
 
   function exportAdminData() {
-    const content = JSON.stringify({ version: 1, items: customItems, markers: customMarkers }, null, 2);
+    // Keep previously published records when exporting new browser-local edits.
+    // The map-data.ts starter records remain code-owned and are intentionally not duplicated here.
+    const items = Array.from(new Map([...publishedItems, ...customItems].map((item) => [item.id, item])).values());
+    const markers = Array.from(new Map([...publishedMarkers, ...customMarkers].map((marker) => [marker.id, marker])).values());
+    const content = JSON.stringify({ version: 1, items, markers }, null, 2);
     const url = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
     const link = document.createElement('a');
     link.href = url;

@@ -39,7 +39,7 @@ http://localhost:3000/?admin=1
 
 This is appropriate for a private local editing workflow, but it is not secure authentication: code hosted on GitHub Pages is public. For a genuinely protected online admin portal, connect the editor to an authenticated backend such as Supabase, Firebase, or Cloudflare.
 
-To publish local admin changes, open **Item Library**, choose **Export publishing data**, and replace `public/data/atlas-data.json` with the downloaded file before rebuilding. Public visitors receive that data but never see the editing controls.
+To publish local admin changes, open **Item Library**, choose **Export publishing data**, and replace `public/data/atlas-data.json` with the downloaded file before rebuilding. Exports preserve existing published records and append your new browser-local records. Public visitors receive that data but never see the editing controls.
 
 ## Reusable items and uploaded images
 
