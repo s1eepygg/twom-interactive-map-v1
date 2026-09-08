@@ -32,12 +32,14 @@ import { starterItems } from './item-data';
 import {
   categoryMeta,
   maps,
+  monsterRankMeta,
   starterMarkers,
   type ItemMode,
   type ItemRecord,
   type MapDefinition,
   type MapMarker,
   type MarkerCategory,
+  type MonsterRank,
 } from './map-data';
 
 const markerStorageKey = 'twom-custom-markers-v2';
@@ -192,13 +194,16 @@ type DraftMarker = {
   y: number | null;
   image?: string;
   spawnTime: string;
+  level: string;
+  hp: string;
+  monsterRank: MonsterRank;
   itemIds: string[];
   itemMode: ItemMode;
 };
 
 const blankDraft: DraftMarker = {
   name: '', category: 'npc', summary: '', x: null, y: null,
-  spawnTime: '', itemIds: [], itemMode: 'sells',
+  spawnTime: '', level: '', hp: '', monsterRank: 'normal', itemIds: [], itemMode: 'sells',
 };
 
 export default function MapExplorer() {
@@ -295,19 +300,25 @@ export default function MapExplorer() {
           y: { type: 'number', minimum: 0, maximum: 100 },
           summary: { type: 'string' },
           spawnTime: { type: 'string' },
+          level: { type: 'string' },
+          hp: { type: 'string' },
+          monsterRank: { type: 'string', enum: ['normal', 'mini-boss', 'boss', 'raid-boss'] },
         },
         required: ['mapId', 'name', 'category', 'x', 'y'],
         additionalProperties: false,
       },
       annotations: { readOnlyHint: false, untrustedContentHint: false },
       execute(raw: unknown) {
-        const input = raw as Partial<{ mapId: string; name: string; category: MarkerCategory; x: number; y: number; summary: string; spawnTime: string }>;
+        const input = raw as Partial<{ mapId: string; name: string; category: MarkerCategory; x: number; y: number; summary: string; spawnTime: string; level: string; hp: string; monsterRank: MonsterRank }>;
         if (!input.mapId || !maps.some((map) => map.id === input.mapId) || !input.name?.trim() || !input.category || !categories.includes(input.category) || typeof input.x !== 'number' || typeof input.y !== 'number' || input.x < 0 || input.x > 100 || input.y < 0 || input.y > 100) {
           throw new Error('Provide a valid map, name, category, and x/y percentages.');
         }
         const marker = addCustomMarker({
           mapId: input.mapId, name: input.name.trim(), category: input.category, x: input.x, y: input.y,
           summary: input.summary?.trim() || 'Custom map marker.', spawnTime: input.spawnTime,
+          level: input.category === 'monster' ? input.level?.trim() : undefined,
+          hp: input.category === 'monster' ? input.hp?.trim() : undefined,
+          monsterRank: input.category === 'monster' ? input.monsterRank || 'normal' : undefined,
           itemIds: [], itemMode: input.category === 'monster' ? 'drops' : 'sells',
         });
         return { id: marker.id, mapId: marker.mapId, name: marker.name };
@@ -345,6 +356,9 @@ export default function MapExplorer() {
       summary: draft.summary.trim() || 'Custom map marker.',
       image: draft.image,
       spawnTime: draft.category === 'monster' ? draft.spawnTime.trim() : undefined,
+      level: draft.category === 'monster' ? draft.level.trim() : undefined,
+      hp: draft.category === 'monster' ? draft.hp.trim() : undefined,
+      monsterRank: draft.category === 'monster' ? draft.monsterRank : undefined,
       itemIds: draft.category === 'npc' || draft.category === 'monster' ? draft.itemIds : [],
       itemMode: draft.category === 'monster' ? 'drops' : draft.itemMode,
     });
@@ -474,7 +488,14 @@ export default function MapExplorer() {
                     <p className={`popup-kicker popup-kicker--${marker.category}`}>{categoryMeta[marker.category].icon} {categoryMeta[marker.category].label}</p>
                     <h2>{marker.name}</h2>
                     <p>{marker.summary}</p>
-                    {marker.spawnTime && <div className="spawn-time"><b>Spawn time</b><span>{marker.spawnTime}</span></div>}
+                    {marker.category === 'monster' && (marker.level || marker.hp || (marker.monsterRank && marker.monsterRank !== 'normal')) && (
+                      <div className="monster-stats">
+                        {marker.monsterRank && marker.monsterRank !== 'normal' && <span className={`monster-rank monster-rank--${marker.monsterRank}`}>{monsterRankMeta[marker.monsterRank].label}</span>}
+                        {marker.level && <span><b>LV</b>{marker.level}</span>}
+                        {marker.hp && <span><b>HP</b>{marker.hp}</span>}
+                      </div>
+                    )}
+                    {marker.spawnTime && <div className="spawn-time"><b>復活時間</b><span>{marker.spawnTime}</span></div>}
                     {visibleDetails.length > 0 && <ul>{visibleDetails.map((detail) => <li key={detail}>{detail}</li>)}</ul>}
                     {linkedItems.length > 0 && (
                       <div className={`popup-items popup-items--${marker.itemMode || 'sells'}`}><b>{marker.itemMode === 'drops' ? 'Drops' : marker.itemMode === 'crafts' ? 'Crafts' : 'Sells'}</b>
@@ -531,7 +552,17 @@ export default function MapExplorer() {
               <label className="field-label" htmlFor="marker-notes">Short description{draft.category === 'custom' ? ' (required)' : ''}</label>
               <textarea id="marker-notes" className="text-input text-area" placeholder="What should players know?" value={draft.summary} onChange={(event) => setDraft((current) => ({ ...current, summary: event.target.value }))} />
 
-              {draft.category === 'monster' && <><label className="field-label" htmlFor="spawn-time">Spawn time</label><input id="spawn-time" className="text-input" placeholder="e.g. 5 minutes" value={draft.spawnTime} onChange={(event) => setDraft((current) => ({ ...current, spawnTime: event.target.value }))} /></>}
+              {draft.category === 'monster' && <>
+                <label className="field-label" htmlFor="monster-rank">Monster category</label>
+                <select id="monster-rank" className="text-input monster-rank-select" value={draft.monsterRank} onChange={(event) => setDraft((current) => ({ ...current, monsterRank: event.target.value as MonsterRank }))}>
+                  {(Object.keys(monsterRankMeta) as MonsterRank[]).map((rank) => <option key={rank} value={rank}>{monsterRankMeta[rank].label}</option>)}
+                </select>
+                <div className="monster-field-grid">
+                  <label><span className="field-label">LV</span><input className="text-input" placeholder="e.g. 42" value={draft.level} onChange={(event) => setDraft((current) => ({ ...current, level: event.target.value }))} /></label>
+                  <label><span className="field-label">HP</span><input className="text-input" placeholder="e.g. 12,500" value={draft.hp} onChange={(event) => setDraft((current) => ({ ...current, hp: event.target.value }))} /></label>
+                </div>
+                <label className="field-label" htmlFor="spawn-time">復活時間</label><input id="spawn-time" className="text-input" placeholder="e.g. 5 minutes" value={draft.spawnTime} onChange={(event) => setDraft((current) => ({ ...current, spawnTime: event.target.value }))} />
+              </>}
 
               {(draft.category === 'monster' || draft.category === 'npc') && (
                 <div className="linked-items-section">

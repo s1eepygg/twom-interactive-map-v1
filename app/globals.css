@@ -708,6 +708,41 @@ body {
   image-rendering: pixelated;
 }
 
+.monster-stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 10px;
+}
+.monster-stats > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 27px;
+  padding: 3px 9px;
+  border: 1px solid rgba(226, 238, 255, .24);
+  border-radius: 7px;
+  color: #f6fbff;
+  background: rgba(30, 43, 65, .58);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.monster-stats b { color: #ffbdc2; font-size: 10px; letter-spacing: .08em; }
+.monster-stats .monster-rank { border-color: currentColor; background: rgba(30, 43, 65, .3); }
+.monster-rank--mini-boss { color: #ffe27d; }
+.monster-rank--boss { color: #ff9d7c; }
+.monster-rank--raid-boss { color: #dfb7ff; }
+
+.monster-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.monster-field-grid .field-label { margin-top: 13px; }
+.monster-rank-select { appearance: auto; }
+
 /* Use a clean slate surface instead of the extracted clover pattern. */
 .leaflet-container .leaflet-popup-content-wrapper,
 .leaflet-container .leaflet-popup-tip,
