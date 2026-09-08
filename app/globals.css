@@ -743,6 +743,47 @@ body {
 .monster-field-grid .field-label { margin-top: 13px; }
 .monster-rank-select { appearance: auto; }
 
+.marker-popup--mini-boss .leaflet-popup-content-wrapper { border-color: #f29945; box-shadow: 0 4px 0 #7b4527, 0 18px 42px rgba(5, 10, 23, .42); }
+.marker-popup--boss .leaflet-popup-content-wrapper { border-color: #ef5d67; box-shadow: 0 4px 0 #792f42, 0 18px 42px rgba(5, 10, 23, .42); }
+.marker-popup--raid-boss .leaflet-popup-content-wrapper { border-color: #b98ae8; box-shadow: 0 4px 0 #5e467d, 0 18px 42px rgba(5, 10, 23, .42); }
+
+.popup-items--drops small {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.item-picker-search {
+  min-height: 40px;
+  margin-top: 12px;
+}
+.item-picker-grid {
+  max-height: 340px;
+  margin-top: 9px;
+  padding-right: 4px;
+  overflow-y: auto;
+  align-content: start;
+  scrollbar-color: #8fa3bf #293850;
+  scrollbar-width: thin;
+}
+.item-picker-grid button {
+  grid-template-columns: 36px minmax(0, 1fr);
+  justify-items: start;
+  align-items: center;
+  min-height: 62px;
+  border: 1px solid rgba(224, 237, 255, .28);
+  border-radius: 8px;
+  background-color: rgba(29, 42, 64, .72);
+  background-image: none;
+  text-align: left;
+}
+.item-picker-grid button:hover { background-color: rgba(77, 101, 140, .62); }
+.item-picker-grid button.is-selected { background-color: rgba(74, 111, 103, .7); }
+.item-picker-grid img { width: 36px; height: 36px; border-radius: 4px; object-fit: contain; }
+.item-picker-grid button > span { color: #eef6ff; font-size: 11px; line-height: 1.25; overflow-wrap: anywhere; }
+.item-picker-empty { grid-column: 1 / -1; margin: 10px 3px; color: #c4d2e4; font-size: 12px; }
+
 /* Use a clean slate surface instead of the extracted clover pattern. */
 .leaflet-container .leaflet-popup-content-wrapper,
 .leaflet-container .leaflet-popup-tip,

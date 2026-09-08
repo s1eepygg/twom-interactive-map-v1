@@ -226,6 +226,7 @@ export default function MapExplorer() {
   const [draft, setDraft] = useState<DraftMarker>(blankDraft);
   const [newItemName, setNewItemName] = useState('');
   const [newItemImage, setNewItemImage] = useState<string>();
+  const [itemSearch, setItemSearch] = useState('');
   const [savedMessage, setSavedMessage] = useState('');
   const [isAdmin] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === '1');
   const [isTouchDevice, setIsTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none), (pointer: coarse)').matches);
@@ -238,12 +239,27 @@ export default function MapExplorer() {
     return () => media.removeEventListener?.('change', update);
   }, []);
 
+  useEffect(() => {
+    const ignoreResizeObserverLoop = (event: ErrorEvent) => {
+      if (event.message.includes('ResizeObserver loop')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    };
+    window.addEventListener('error', ignoreResizeObserverLoop, true);
+    return () => window.removeEventListener('error', ignoreResizeObserverLoop, true);
+  }, []);
+
   const selectedMap = maps.find((map) => map.id === selectedMapId) || maps[0];
   const bounds = getBounds(selectedMap);
   // A record can exist in both the published JSON and browser localStorage after
   // an export. Keep one copy so counts, icons, and linked drops stay accurate.
   const allItems = useMemo(() => mergeUniqueById(starterItems, customItems, publishedItems), [customItems, publishedItems]);
   const allMarkers = useMemo(() => mergeUniqueById(starterMarkers, customMarkers, publishedMarkers), [customMarkers, publishedMarkers]);
+  const filteredItems = useMemo(() => {
+    const query = itemSearch.trim().toLocaleLowerCase();
+    return query ? allItems.filter((item) => item.name.toLocaleLowerCase().includes(query)) : allItems;
+  }, [allItems, itemSearch]);
   const mapMarkers = allMarkers.filter((marker) => marker.mapId === selectedMap.id);
   const shownMarkers = mapMarkers.filter((marker) => visible.has(marker.category));
 
@@ -479,18 +495,18 @@ export default function MapExplorer() {
           {shownMarkers.map((marker) => {
             const linkedItems = allItems.filter((item) => marker.itemIds?.includes(item.id));
             const visibleDetails = (marker.details || []).filter((detail) => detail !== 'Added in Marker Studio' && detail !== 'Saved on this device');
+            const monsterRank = marker.monsterRank && monsterRankMeta[marker.monsterRank] ? marker.monsterRank : 'normal';
             return (
               <Marker key={marker.id} position={toLatLng(marker, selectedMap)} icon={markerIcon(marker.category, marker.image)} title={marker.name} alt={`${marker.name}, ${categoryMeta[marker.category].label}`}>
                 {!isTouchDevice && <Tooltip direction="top" opacity={1} className="marker-tooltip"><strong>{marker.name}</strong><span>{categoryMeta[marker.category].label}</span></Tooltip>}
-                <Popup className="marker-popup" maxWidth={320} minWidth={250}>
+                <Popup className={`marker-popup marker-popup--${marker.category === 'monster' ? monsterRank : 'normal'}`} maxWidth={320} minWidth={250}>
                   <div className="popup-content">
                     {marker.image && <img className={`popup-portrait popup-portrait--${marker.category}`} src={marker.image} alt="" />}
-                    <p className={`popup-kicker popup-kicker--${marker.category}`}>{categoryMeta[marker.category].icon} {categoryMeta[marker.category].label}</p>
+                    <p className={`popup-kicker popup-kicker--${marker.category}`}>{categoryMeta[marker.category].icon} {categoryMeta[marker.category].label}{marker.category === 'monster' && monsterRank !== 'normal' ? ` - ${monsterRankMeta[monsterRank].label}` : ''}</p>
                     <h2>{marker.name}</h2>
                     <p>{marker.summary}</p>
                     {marker.category === 'monster' && (marker.level || marker.hp || (marker.monsterRank && marker.monsterRank !== 'normal')) && (
                       <div className="monster-stats">
-                        {marker.monsterRank && marker.monsterRank !== 'normal' && <span className={`monster-rank monster-rank--${marker.monsterRank}`}>{monsterRankMeta[marker.monsterRank].label}</span>}
                         {marker.level && <span><b>LV</b>{marker.level}</span>}
                         {marker.hp && <span><b>HP</b>{marker.hp}</span>}
                       </div>
@@ -568,8 +584,10 @@ export default function MapExplorer() {
                 <div className="linked-items-section">
                   <div className="linked-items-head"><div><span className="field-label">{draft.category === 'monster' ? 'Dropped items' : 'NPC items'}</span><small>Select reusable records from the Item Library.</small></div><button onClick={() => setPanel('items')}><Database size={14} /> Manage items</button></div>
                   {draft.category === 'npc' && <div className="relation-picker"><button className={draft.itemMode === 'sells' ? 'is-selected' : ''} onClick={() => setDraft((current) => ({ ...current, itemMode: 'sells' }))}>Sells</button><button className={draft.itemMode === 'crafts' ? 'is-selected' : ''} onClick={() => setDraft((current) => ({ ...current, itemMode: 'crafts' }))}>Crafts</button></div>}
+                  <input className="text-input item-picker-search" type="search" placeholder="Search items..." aria-label="Search items" value={itemSearch} onChange={(event) => setItemSearch(event.target.value)} />
                   <div className="item-picker-grid">
-                    {allItems.map((item) => <button key={item.id} className={draft.itemIds.includes(item.id) ? 'is-selected' : ''} onClick={() => toggleDraftItem(item.id)}>{item.image ? <img src={item.image} alt="" /> : <Package size={18} />}<span>{item.name}</span></button>)}
+                    {filteredItems.map((item) => <button type="button" key={item.id} className={draft.itemIds.includes(item.id) ? 'is-selected' : ''} onClick={() => toggleDraftItem(item.id)}>{item.image ? <img src={item.image} alt="" /> : <Package size={18} />}<span>{item.name}</span></button>)}
+                    {filteredItems.length === 0 && <p className="item-picker-empty">No matching items.</p>}
                   </div>
                 </div>
               )}
