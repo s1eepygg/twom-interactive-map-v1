@@ -254,7 +254,7 @@ export default function MapExplorer() {
     const marker: MapMarker = {
       ...input,
       id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      details: ['Added in Marker Studio', 'Saved on this device'],
+      details: [],
       custom: true,
     };
     setCustomMarkers((current) => {
@@ -455,6 +455,7 @@ export default function MapExplorer() {
 
           {shownMarkers.map((marker) => {
             const linkedItems = allItems.filter((item) => marker.itemIds?.includes(item.id));
+            const visibleDetails = (marker.details || []).filter((detail) => detail !== 'Added in Marker Studio' && detail !== 'Saved on this device');
             return (
               <Marker key={marker.id} position={toLatLng(marker, selectedMap)} icon={markerIcon(marker.category, marker.image)} title={marker.name} alt={`${marker.name}, ${categoryMeta[marker.category].label}`}>
                 <Tooltip direction="top" opacity={1} className="marker-tooltip"><strong>{marker.name}</strong><span>{categoryMeta[marker.category].label}</span></Tooltip>
@@ -465,7 +466,7 @@ export default function MapExplorer() {
                     <h2>{marker.name}</h2>
                     <p>{marker.summary}</p>
                     {marker.spawnTime && <div className="spawn-time"><b>Spawn time</b><span>{marker.spawnTime}</span></div>}
-                    <ul>{marker.details.map((detail) => <li key={detail}>{detail}</li>)}</ul>
+                    {visibleDetails.length > 0 && <ul>{visibleDetails.map((detail) => <li key={detail}>{detail}</li>)}</ul>}
                     {linkedItems.length > 0 && (
                       <div className={`popup-items popup-items--${marker.itemMode || 'sells'}`}><b>{marker.itemMode === 'drops' ? 'Drops' : marker.itemMode === 'crafts' ? 'Crafts' : 'Sells'}</b>
                         <div>{linkedItems.map((item) => <span key={item.id}>{item.image ? <img src={item.image} alt="" /> : <Package size={17} />}<small>{item.name}</small></span>)}</div>

@@ -654,8 +654,8 @@ body {
 
 /* Monster portraits are free-standing sprites, not framed thumbnails. */
 .popup-portrait--monster {
-  width: 78px;
-  height: 78px;
+  width: 64px;
+  height: 64px;
   border: 0;
   border-radius: 0;
   object-fit: contain;
@@ -678,4 +678,29 @@ body {
   border-radius: 0;
   object-fit: contain;
   image-rendering: pixelated;
+}
+
+/* Keep the respawn readout compact beside the monster sprite. */
+.spawn-time,
+.spawn-time b,
+.spawn-time span {
+  white-space: nowrap;
+}
+.spawn-time { gap: 10px; }
+
+.popup-items--drops small {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* Use a clean slate surface instead of the extracted clover pattern. */
+.leaflet-container .leaflet-popup-content-wrapper,
+.leaflet-container .leaflet-popup-tip,
+.legend-card,
+.studio-panel,
+.map-loading {
+  background-image: linear-gradient(rgba(53, 68, 95, .96), rgba(42, 56, 81, .98));
+  background-size: auto;
 }
