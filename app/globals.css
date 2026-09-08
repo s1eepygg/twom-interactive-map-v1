@@ -651,3 +651,31 @@ body {
   .category-row b { display: none; }
   .category-row { grid-template-columns: 29px 1fr 23px; }
 }
+
+/* Monster portraits are free-standing sprites, not framed thumbnails. */
+.popup-portrait--monster {
+  width: 78px;
+  height: 78px;
+  border: 0;
+  border-radius: 0;
+  object-fit: contain;
+  background: transparent;
+  image-rendering: pixelated;
+}
+
+/* Drops use the item sprite only; the inventory slot frame is for library items. */
+.popup-items--drops span {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.popup-items--drops img,
+.popup-items--drops span > svg {
+  width: 36px;
+  height: 36px;
+  border-radius: 0;
+  object-fit: contain;
+  image-rendering: pixelated;
+}

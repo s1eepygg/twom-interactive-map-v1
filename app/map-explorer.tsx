@@ -460,14 +460,14 @@ export default function MapExplorer() {
                 <Tooltip direction="top" opacity={1} className="marker-tooltip"><strong>{marker.name}</strong><span>{categoryMeta[marker.category].label}</span></Tooltip>
                 <Popup className="marker-popup" maxWidth={320} minWidth={250}>
                   <div className="popup-content">
-                    {marker.image && <img className="popup-portrait" src={marker.image} alt="" />}
+                    {marker.image && <img className={`popup-portrait popup-portrait--${marker.category}`} src={marker.image} alt="" />}
                     <p className={`popup-kicker popup-kicker--${marker.category}`}>{categoryMeta[marker.category].icon} {categoryMeta[marker.category].label}</p>
                     <h2>{marker.name}</h2>
                     <p>{marker.summary}</p>
                     {marker.spawnTime && <div className="spawn-time"><b>Spawn time</b><span>{marker.spawnTime}</span></div>}
                     <ul>{marker.details.map((detail) => <li key={detail}>{detail}</li>)}</ul>
                     {linkedItems.length > 0 && (
-                      <div className="popup-items"><b>{marker.itemMode === 'drops' ? 'Drops' : marker.itemMode === 'crafts' ? 'Crafts' : 'Sells'}</b>
+                      <div className={`popup-items popup-items--${marker.itemMode || 'sells'}`}><b>{marker.itemMode === 'drops' ? 'Drops' : marker.itemMode === 'crafts' ? 'Crafts' : 'Sells'}</b>
                         <div>{linkedItems.map((item) => <span key={item.id}>{item.image ? <img src={item.image} alt="" /> : <Package size={17} />}<small>{item.name}</small></span>)}</div>
                       </div>
                     )}
