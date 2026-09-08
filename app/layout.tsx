@@ -10,9 +10,21 @@ export const metadata: Metadata = {
   description: 'Explore The World of Magic maps, NPCs, monsters, portals, and item discoveries.',
 };
 
+const resizeObserverErrorFilter = `
+  window.addEventListener('error', function (event) {
+    if (typeof event.message === 'string' && event.message.includes('ResizeObserver loop')) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
+`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: resizeObserverErrorFilter }} />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
     </html>
   );

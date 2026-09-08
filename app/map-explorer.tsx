@@ -17,6 +17,7 @@ import {
 import L, { type LatLngBoundsExpression, type LeafletMouseEvent } from 'leaflet';
 import {
   ArrowLeft,
+  Copy,
   Crosshair,
   Database,
   Download,
@@ -43,6 +44,7 @@ import {
 } from './map-data';
 
 const markerStorageKey = 'twom-custom-markers-v2';
+const removedMarkerStorageKey = 'twom-removed-marker-ids-v1';
 const itemStorageKey = 'twom-custom-items-v1';
 const categories = Object.keys(categoryMeta) as MarkerCategory[];
 
@@ -220,6 +222,7 @@ export default function MapExplorer() {
   const [customItems, setCustomItems] = useState<ItemRecord[]>(() => loadStored(itemStorageKey, []));
   const [publishedMarkers, setPublishedMarkers] = useState<MapMarker[]>([]);
   const [publishedItems, setPublishedItems] = useState<ItemRecord[]>([]);
+  const [removedMarkerIds, setRemovedMarkerIds] = useState<Set<string>>(() => new Set(loadStored<string[]>(removedMarkerStorageKey, [])));
   const [panel, setPanel] = useState<'marker' | 'items' | null>(null);
   const [legendOpen, setLegendOpen] = useState(true);
   const [resetSignal, setResetSignal] = useState(0);
@@ -228,6 +231,7 @@ export default function MapExplorer() {
   const [newItemImage, setNewItemImage] = useState<string>();
   const [itemSearch, setItemSearch] = useState('');
   const [savedMessage, setSavedMessage] = useState('');
+  const [copyingMonster, setCopyingMonster] = useState<MapMarker | null>(null);
   const [isAdmin] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === '1');
   const [isTouchDevice, setIsTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none), (pointer: coarse)').matches);
 
@@ -239,23 +243,15 @@ export default function MapExplorer() {
     return () => media.removeEventListener?.('change', update);
   }, []);
 
-  useEffect(() => {
-    const ignoreResizeObserverLoop = (event: ErrorEvent) => {
-      if (event.message.includes('ResizeObserver loop')) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-      }
-    };
-    window.addEventListener('error', ignoreResizeObserverLoop, true);
-    return () => window.removeEventListener('error', ignoreResizeObserverLoop, true);
-  }, []);
-
   const selectedMap = maps.find((map) => map.id === selectedMapId) || maps[0];
   const bounds = getBounds(selectedMap);
   // A record can exist in both the published JSON and browser localStorage after
   // an export. Keep one copy so counts, icons, and linked drops stay accurate.
   const allItems = useMemo(() => mergeUniqueById(starterItems, customItems, publishedItems), [customItems, publishedItems]);
-  const allMarkers = useMemo(() => mergeUniqueById(starterMarkers, customMarkers, publishedMarkers), [customMarkers, publishedMarkers]);
+  const allMarkers = useMemo(
+    () => mergeUniqueById(starterMarkers, customMarkers, publishedMarkers).filter((marker) => !removedMarkerIds.has(marker.id)),
+    [customMarkers, publishedMarkers, removedMarkerIds],
+  );
   const filteredItems = useMemo(() => {
     const query = itemSearch.trim().toLocaleLowerCase();
     return query ? allItems.filter((item) => item.name.toLocaleLowerCase().includes(query)) : allItems;
@@ -280,11 +276,10 @@ export default function MapExplorer() {
     return () => { active = false; };
   }, []);
 
-  const addCustomMarker = useCallback((input: Omit<MapMarker, 'id' | 'details' | 'custom'>) => {
+  const addCustomMarker = useCallback((input: Omit<MapMarker, 'id' | 'custom'>) => {
     const marker: MapMarker = {
       ...input,
       id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      details: [],
       custom: true,
     };
     setCustomMarkers((current) => {
@@ -331,11 +326,11 @@ export default function MapExplorer() {
         }
         const marker = addCustomMarker({
           mapId: input.mapId, name: input.name.trim(), category: input.category, x: input.x, y: input.y,
-          summary: input.summary?.trim() || 'Custom map marker.', spawnTime: input.spawnTime,
+          summary: input.summary?.trim() || '', spawnTime: input.spawnTime,
           level: input.category === 'monster' ? input.level?.trim() : undefined,
           hp: input.category === 'monster' ? input.hp?.trim() : undefined,
           monsterRank: input.category === 'monster' ? input.monsterRank || 'normal' : undefined,
-          itemIds: [], itemMode: input.category === 'monster' ? 'drops' : 'sells',
+          itemIds: [], itemMode: input.category === 'monster' ? 'drops' : 'sells', details: [],
         });
         return { id: marker.id, mapId: marker.mapId, name: marker.name };
       },
@@ -362,14 +357,14 @@ export default function MapExplorer() {
 
   function saveMarker() {
     if (!draft.name.trim() || draft.x === null || draft.y === null) return;
-    if (draft.category === 'custom' && (!draft.image || !draft.summary.trim())) return;
+    if (draft.category === 'custom' && !draft.image) return;
     const marker = addCustomMarker({
       mapId: selectedMap.id,
       name: draft.name.trim(),
       category: draft.category,
       x: draft.x,
       y: draft.y,
-      summary: draft.summary.trim() || 'Custom map marker.',
+      summary: draft.summary.trim(),
       image: draft.image,
       spawnTime: draft.category === 'monster' ? draft.spawnTime.trim() : undefined,
       level: draft.category === 'monster' ? draft.level.trim() : undefined,
@@ -377,16 +372,52 @@ export default function MapExplorer() {
       monsterRank: draft.category === 'monster' ? draft.monsterRank : undefined,
       itemIds: draft.category === 'npc' || draft.category === 'monster' ? draft.itemIds : [],
       itemMode: draft.category === 'monster' ? 'drops' : draft.itemMode,
+      details: [],
     });
     setDraft(blankDraft);
     setSavedMessage(`${marker.name} added to ${selectedMap.name}.`);
     window.setTimeout(() => setSavedMessage(''), 2800);
   }
 
+  function beginCopyMonster(marker: MapMarker) {
+    setCopyingMonster(marker);
+    setPanel(null);
+  }
+
+  function pickMapPosition(position: { x: number; y: number }) {
+    if (!copyingMonster) {
+      setDraft((current) => ({ ...current, ...position }));
+      return;
+    }
+
+    addCustomMarker({
+      mapId: selectedMap.id,
+      name: copyingMonster.name,
+      category: 'monster',
+      x: position.x,
+      y: position.y,
+      summary: copyingMonster.summary,
+      details: [...(copyingMonster.details || [])],
+      image: copyingMonster.image,
+      spawnTime: copyingMonster.spawnTime,
+      level: copyingMonster.level,
+      hp: copyingMonster.hp,
+      monsterRank: copyingMonster.monsterRank,
+      itemIds: [...(copyingMonster.itemIds || [])],
+      itemMode: copyingMonster.itemMode || 'drops',
+    });
+    setCopyingMonster(null);
+  }
+
   function removeCustomMarker(id: string) {
     setCustomMarkers((current) => {
       const next = current.filter((marker) => marker.id !== id);
       window.localStorage.setItem(markerStorageKey, JSON.stringify(next));
+      return next;
+    });
+    setRemovedMarkerIds((current) => {
+      const next = new Set(current).add(id);
+      window.localStorage.setItem(removedMarkerStorageKey, JSON.stringify([...next]));
       return next;
     });
   }
@@ -428,7 +459,8 @@ export default function MapExplorer() {
     // Keep previously published records when exporting new browser-local edits.
     // The map-data.ts starter records remain code-owned and are intentionally not duplicated here.
     const items = Array.from(new Map([...publishedItems, ...customItems].map((item) => [item.id, item])).values());
-    const markers = Array.from(new Map([...publishedMarkers, ...customMarkers].map((marker) => [marker.id, marker])).values());
+    const markers = Array.from(new Map([...publishedMarkers, ...customMarkers].map((marker) => [marker.id, marker])).values())
+      .filter((marker) => !removedMarkerIds.has(marker.id));
     const content = JSON.stringify({ version: 1, items, markers }, null, 2);
     const url = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
     const link = document.createElement('a');
@@ -456,7 +488,7 @@ export default function MapExplorer() {
           <label className="map-picker-label game-select">
             <span className="sr-only">Choose map</span>
             <img src="./ui/icon-position.png" alt="" aria-hidden="true" />
-            <select value={selectedMap.id} onChange={(event) => { setSelectedMapId(event.target.value); setDraft(blankDraft); setResetSignal((n) => n + 1); }}>
+            <select value={selectedMap.id} onChange={(event) => { setSelectedMapId(event.target.value); setDraft(blankDraft); setCopyingMonster(null); setResetSignal((n) => n + 1); }}>
               {maps.map((map) => <option key={map.id} value={map.id}>{map.zone} · {map.name}</option>)}
             </select>
           </label>
@@ -485,12 +517,12 @@ export default function MapExplorer() {
           zoomDelta={0.5}
           wheelPxPerZoomLevel={90}
           attributionControl={false}
-          className={`leaflet-map ${panel === 'marker' ? 'is-picking' : ''}`}
+          className={`leaflet-map ${panel === 'marker' || copyingMonster ? 'is-picking' : ''}`}
         >
           <ImageOverlay url={selectedMap.image} bounds={bounds} />
           <MapCommands mapDefinition={selectedMap} resetSignal={resetSignal} />
           <MarkerScaleController />
-          <PositionPicker enabled={panel === 'marker'} mapDefinition={selectedMap} onPick={(position) => setDraft((current) => ({ ...current, ...position }))} />
+          <PositionPicker enabled={panel === 'marker' || Boolean(copyingMonster)} mapDefinition={selectedMap} onPick={pickMapPosition} />
 
           {shownMarkers.map((marker) => {
             const linkedItems = allItems.filter((item) => marker.itemIds?.includes(item.id));
@@ -504,7 +536,7 @@ export default function MapExplorer() {
                     {marker.image && <img className={`popup-portrait popup-portrait--${marker.category}`} src={marker.image} alt="" />}
                     <p className={`popup-kicker popup-kicker--${marker.category}`}>{categoryMeta[marker.category].icon} {categoryMeta[marker.category].label}{marker.category === 'monster' && monsterRank !== 'normal' ? ` - ${monsterRankMeta[monsterRank].label}` : ''}</p>
                     <h2>{marker.name}</h2>
-                    <p>{marker.summary}</p>
+                    {marker.summary && <p>{marker.summary}</p>}
                     {marker.category === 'monster' && (marker.level || marker.hp || (marker.monsterRank && marker.monsterRank !== 'normal')) && (
                       <div className="monster-stats">
                         {marker.level && <span><b>LV</b>{marker.level}</span>}
@@ -518,7 +550,12 @@ export default function MapExplorer() {
                         <div>{linkedItems.map((item) => <span key={item.id}>{item.image ? <img src={item.image} alt="" /> : <Package size={17} />}<small>{item.name}</small></span>)}</div>
                       </div>
                     )}
-                    {isAdmin && marker.custom && <button onClick={() => removeCustomMarker(marker.id)}>Remove this marker</button>}
+                    {isAdmin && (marker.custom || marker.category === 'monster') && (
+                      <div className="popup-marker-actions">
+                        {marker.custom && <button className="remove-marker-button" onClick={() => removeCustomMarker(marker.id)}>Remove this marker</button>}
+                        {marker.category === 'monster' && <button className="copy-monster-button" onClick={() => beginCopyMonster(marker)}><Copy size={14} /> Copy monster</button>}
+                      </div>
+                    )}
                   </div>
                 </Popup>
               </Marker>
@@ -529,6 +566,14 @@ export default function MapExplorer() {
             <CircleMarker center={toLatLng({ x: draft.x, y: draft.y }, selectedMap)} radius={16} pathOptions={{ color: '#fff2a8', fillColor: '#ffd166', fillOpacity: 0.8, weight: 4 }} />
           )}
         </MapContainer>
+
+        {copyingMonster && (
+          <div className="copy-placement-banner" role="status">
+            <Copy size={17} />
+            <span>Copying <b>{copyingMonster.name}</b> — click the map to place it.</span>
+            <button type="button" onClick={() => setCopyingMonster(null)}>Cancel</button>
+          </div>
+        )}
 
         <div className={`legend-card ${legendOpen ? '' : 'is-collapsed'}`}>
           <button className="legend-title" aria-expanded={legendOpen} onClick={() => setLegendOpen((open) => !open)}><span><img src="./ui/menu-quest.png" alt="" aria-hidden="true" /> Map layers</span><span className="legend-chevron">⌃</span></button>
@@ -565,7 +610,7 @@ export default function MapExplorer() {
               <fieldset><legend className="field-label">Category</legend><div className="category-picker">
                 {categories.map((category) => <button type="button" key={category} className={draft.category === category ? 'is-selected' : ''} onClick={() => changeCategory(category)}><span className={`category-symbol category-symbol--${category}`}>{categoryMeta[category].icon}</span>{categoryMeta[category].label}</button>)}
               </div></fieldset>
-              <label className="field-label" htmlFor="marker-notes">Short description{draft.category === 'custom' ? ' (required)' : ''}</label>
+              <label className="field-label" htmlFor="marker-notes">Short description</label>
               <textarea id="marker-notes" className="text-input text-area" placeholder="What should players know?" value={draft.summary} onChange={(event) => setDraft((current) => ({ ...current, summary: event.target.value }))} />
 
               {draft.category === 'monster' && <>
@@ -592,7 +637,7 @@ export default function MapExplorer() {
                 </div>
               )}
             </div>
-            <div className="studio-footer"><p>{savedMessage || 'NPCs and monsters appear as free-standing map sprites.'}</p><button className="button button--primary button--wide" disabled={!draft.name.trim() || draft.x === null || (draft.category === 'custom' && (!draft.image || !draft.summary.trim()))} onClick={saveMarker}><MapPinned size={17} /> Save marker</button></div>
+            <div className="studio-footer"><p>{savedMessage || 'NPCs and monsters appear as free-standing map sprites.'}</p><button className="button button--primary button--wide" disabled={!draft.name.trim() || draft.x === null || (draft.category === 'custom' && !draft.image)} onClick={saveMarker}><MapPinned size={17} /> Save marker</button></div>
           </>
         )}
 

@@ -106,6 +106,12 @@ button { color: inherit; }
 .leaflet-container .popup-content li { margin: 5px 0; color: #304a56; font-size: 12px; font-weight: 520; }
 .leaflet-container .popup-content li::before { content: '·'; margin-right: 7px; color: #aa7200; }
 .popup-content button { margin-top: 10px; padding: 0; border: 0; color: #ff8090; background: none; cursor: pointer; font-size: 12px; }
+.popup-marker-actions { clear: both; display: grid; justify-items: start; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(226,238,255,.22); }
+.popup-marker-actions button { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; }
+.popup-marker-actions .copy-monster-button { color: #ffe46b; }
+.copy-placement-banner { position: absolute; z-index: 1250; left: 50%; bottom: 28px; display: flex; align-items: center; gap: 9px; max-width: calc(100% - 28px); padding: 10px 12px; border: 2px solid rgba(255,244,169,.9); border-radius: 11px; color: #f7fbff; background: rgba(27,41,65,.95); box-shadow: 0 5px 0 rgba(8,15,27,.5), 0 14px 34px rgba(0,0,0,.34); transform: translateX(-50%); font-size: 13px; }
+.copy-placement-banner span { min-width: 0; }
+.copy-placement-banner button { padding: 5px 8px; border: 1px solid rgba(255,255,255,.3); border-radius: 7px; color: #fff; background: rgba(255,255,255,.1); cursor: pointer; font: inherit; }
 .spawn-time { display: flex; justify-content: space-between; gap: 14px; margin: 10px 0; padding: 9px 10px; border-radius: 8px; color: #3c505a; background: rgba(214,47,73,.08); font-size: 12px; }
 .spawn-time b { color: #c82b43; }
 .popup-items { clear: both; margin-top: 11px; padding-top: 11px; border-top: 1px solid rgba(22,56,70,.13); }
