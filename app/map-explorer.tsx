@@ -223,6 +223,15 @@ export default function MapExplorer() {
   const [newItemImage, setNewItemImage] = useState<string>();
   const [savedMessage, setSavedMessage] = useState('');
   const [isAdmin] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === '1');
+  const [isTouchDevice, setIsTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none), (pointer: coarse)').matches);
+
+  useEffect(() => {
+    const media = window.matchMedia('(hover: none), (pointer: coarse)');
+    const update = () => setIsTouchDevice(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
 
   const selectedMap = maps.find((map) => map.id === selectedMapId) || maps[0];
   const bounds = getBounds(selectedMap);
@@ -458,7 +467,7 @@ export default function MapExplorer() {
             const visibleDetails = (marker.details || []).filter((detail) => detail !== 'Added in Marker Studio' && detail !== 'Saved on this device');
             return (
               <Marker key={marker.id} position={toLatLng(marker, selectedMap)} icon={markerIcon(marker.category, marker.image)} title={marker.name} alt={`${marker.name}, ${categoryMeta[marker.category].label}`}>
-                <Tooltip direction="top" opacity={1} className="marker-tooltip"><strong>{marker.name}</strong><span>{categoryMeta[marker.category].label}</span></Tooltip>
+                {!isTouchDevice && <Tooltip direction="top" opacity={1} className="marker-tooltip"><strong>{marker.name}</strong><span>{categoryMeta[marker.category].label}</span></Tooltip>}
                 <Popup className="marker-popup" maxWidth={320} minWidth={250}>
                   <div className="popup-content">
                     {marker.image && <img className={`popup-portrait popup-portrait--${marker.category}`} src={marker.image} alt="" />}

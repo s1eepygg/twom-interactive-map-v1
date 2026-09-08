@@ -695,6 +695,19 @@ body {
   line-height: 1.25;
 }
 
+/* NPC and custom portraits use the same free-standing sprite treatment as monsters. */
+.popup-portrait,
+.popup-portrait--npc,
+.popup-portrait--custom {
+  width: 64px;
+  height: 64px;
+  border: 0;
+  border-radius: 0;
+  object-fit: contain;
+  background: transparent;
+  image-rendering: pixelated;
+}
+
 /* Use a clean slate surface instead of the extracted clover pattern. */
 .leaflet-container .leaflet-popup-content-wrapper,
 .leaflet-container .leaflet-popup-tip,
