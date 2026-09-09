@@ -83,8 +83,9 @@ button { color: inherit; }
 .map-sprite-marker { display: flex; align-items: flex-end; justify-content: center; width: 68px; height: 72px; transform: scale(var(--marker-zoom-scale)); transform-origin: 50% 100%; filter: drop-shadow(0 5px 2px rgba(0,0,0,.46)); transition: transform .16s ease, filter .16s ease; }
 .map-sprite-marker img { display: block; max-width: 68px; max-height: 72px; object-fit: contain; image-rendering: pixelated; }
 .map-marker-shell:hover .map-sprite-marker { transform: translateY(-3px) scale(calc(var(--marker-zoom-scale) * 1.08)); filter: drop-shadow(0 7px 3px rgba(0,0,0,.5)) brightness(1.08); }
-.portal-marker { display: grid; place-items: center; width: 42px; height: 42px; transform: scale(var(--marker-zoom-scale)); transform-origin: 50% 50%; filter: drop-shadow(0 4px 3px rgba(0,0,0,.5)); transition: transform .16s ease, filter .16s ease; }
+.portal-marker { position: relative; display: grid; place-items: center; width: 42px; height: 42px; transform: scale(var(--marker-zoom-scale)); transform-origin: 50% 50%; filter: drop-shadow(0 4px 3px rgba(0,0,0,.5)); transition: transform .16s ease, filter .16s ease; }
 .portal-marker img { width: 37px; height: 38px; object-fit: contain; image-rendering: pixelated; }
+.portal-marker-name { position: absolute; bottom: calc(100% - 1px); left: 50%; max-width: 170px; overflow: hidden; color: #fff; font: 800 12px/1.15 var(--game-title-font), system-ui, sans-serif; letter-spacing: -.01em; pointer-events: none; text-align: center; text-overflow: ellipsis; text-shadow: -1px -1px 0 #1a2c3d, 1px -1px 0 #1a2c3d, -1px 1px 0 #1a2c3d, 1px 1px 0 #1a2c3d, 0 2px 0 #1a2c3d; transform: translateX(-50%); white-space: nowrap; }
 .map-marker-shell:hover .portal-marker { transform: scale(calc(var(--marker-zoom-scale) * 1.14)); filter: drop-shadow(0 6px 4px rgba(0,0,0,.55)) brightness(1.12); }
 
 .marker-tooltip { padding: 8px 10px !important; border: 1px solid rgba(205,232,242,.16) !important; border-radius: 9px !important; color: #f1fbff !important; background: #0b1d27 !important; box-shadow: 0 10px 24px rgba(0,0,0,.28) !important; }

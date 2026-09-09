@@ -60,6 +60,12 @@ function normalizeItemName(name: string) {
   return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
 }
 
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[character] || character);
+}
+
 function mergeUniqueItems(...groups: ItemRecord[][]) {
   const itemsByName = new Map<string, ItemRecord>();
   const itemNameById = new Map<string, string>();
@@ -98,12 +104,12 @@ function toPercent(event: LeafletMouseEvent, map: MapDefinition) {
   };
 }
 
-function markerIcon(category: MarkerCategory, image?: string) {
+function markerIcon(category: MarkerCategory, image?: string, name = '') {
   const meta = categoryMeta[category];
   if (category === 'portal') {
     return L.divIcon({
       className: 'map-marker-shell',
-      html: '<span class="portal-marker"><img src="./icons/portal.png" alt="" /></span>',
+      html: `<span class="portal-marker"><img src="./icons/portal.png" alt="" /><span class="portal-marker-name">${escapeHtml(name)}</span></span>`,
       iconSize: [42, 42],
       iconAnchor: [21, 21],
       popupAnchor: [0, -18],
@@ -600,7 +606,7 @@ export default function MapExplorer() {
             const visibleDetails = (marker.details || []).filter((detail) => detail !== 'Added in Marker Studio' && detail !== 'Saved on this device');
             const monsterRank = marker.monsterRank && monsterRankMeta[marker.monsterRank] ? marker.monsterRank : 'normal';
             return (
-              <Marker key={marker.id} position={toLatLng(marker, selectedMap)} icon={markerIcon(marker.category, marker.image)} title={marker.name} alt={`${marker.name}, ${categoryMeta[marker.category].label}`}>
+              <Marker key={marker.id} position={toLatLng(marker, selectedMap)} icon={markerIcon(marker.category, marker.image, marker.name)} title={marker.name} alt={`${marker.name}, ${categoryMeta[marker.category].label}`}>
                 {!isTouchDevice && <Tooltip direction="top" opacity={1} className="marker-tooltip"><strong>{marker.name}</strong><span>{categoryMeta[marker.category].label}</span></Tooltip>}
                 <Popup className={`marker-popup marker-popup--${marker.category === 'monster' ? monsterRank : 'normal'}`} maxWidth={320} minWidth={250}>
                   <div className="popup-content">
