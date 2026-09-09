@@ -261,7 +261,7 @@ export default function MapExplorer() {
   const [newItemImage, setNewItemImage] = useState<string>();
   const [itemSearch, setItemSearch] = useState('');
   const [savedMessage, setSavedMessage] = useState('');
-  const [copyingMonster, setCopyingMonster] = useState<MapMarker | null>(null);
+  const [copyingMarker, setCopyingMarker] = useState<MapMarker | null>(null);
   const [isAdmin] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === '1');
   const [isTouchDevice, setIsTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none), (pointer: coarse)').matches);
 
@@ -422,34 +422,36 @@ export default function MapExplorer() {
     window.setTimeout(() => setSavedMessage(''), 2800);
   }
 
-  function beginCopyMonster(marker: MapMarker) {
-    setCopyingMonster(marker);
+  function beginCopyMarker(marker: MapMarker) {
+    setCopyingMarker(marker);
     setPanel(null);
   }
 
   function pickMapPosition(position: { x: number; y: number }) {
-    if (!copyingMonster) {
+    if (!copyingMarker) {
       setDraft((current) => ({ ...current, ...position }));
       return;
     }
 
     addCustomMarker({
       mapId: selectedMap.id,
-      name: copyingMonster.name,
-      category: 'monster',
+      name: copyingMarker.name,
+      category: copyingMarker.category,
       x: position.x,
       y: position.y,
-      summary: copyingMonster.summary,
-      details: [...(copyingMonster.details || [])],
-      image: copyingMonster.image,
-      spawnTime: copyingMonster.spawnTime,
-      level: copyingMonster.level,
-      hp: copyingMonster.hp,
-      monsterRank: copyingMonster.monsterRank,
-      itemIds: [...(copyingMonster.itemIds || [])],
-      itemMode: copyingMonster.itemMode || 'drops',
+      summary: copyingMarker.summary,
+      details: [...(copyingMarker.details || [])],
+      image: copyingMarker.image,
+      spawnTime: copyingMarker.spawnTime,
+      level: copyingMarker.level,
+      hp: copyingMarker.hp,
+      monsterRank: copyingMarker.monsterRank,
+      coordinates: copyingMarker.coordinates,
+      quests: copyingMarker.quests ? [...copyingMarker.quests] : undefined,
+      itemIds: [...(copyingMarker.itemIds || [])],
+      itemMode: copyingMarker.itemMode || (copyingMarker.category === 'monster' ? 'drops' : 'sells'),
     });
-    setCopyingMonster(null);
+    setCopyingMarker(null);
   }
 
   function removeCustomMarker(id: string) {
@@ -556,7 +558,7 @@ export default function MapExplorer() {
           <label className="map-picker-label game-select">
             <span className="sr-only">Choose map</span>
             <img src="./ui/icon-position.png" alt="" aria-hidden="true" />
-            <select value={selectedMap.id} onChange={(event) => { setSelectedMapId(event.target.value); setDraft(blankDraft); setCopyingMonster(null); setResetSignal((n) => n + 1); }}>
+            <select value={selectedMap.id} onChange={(event) => { setSelectedMapId(event.target.value); setDraft(blankDraft); setCopyingMarker(null); setResetSignal((n) => n + 1); }}>
               {maps.map((map) => <option key={map.id} value={map.id}>{map.zone} · {map.name}</option>)}
             </select>
           </label>
@@ -585,12 +587,12 @@ export default function MapExplorer() {
           zoomDelta={0.5}
           wheelPxPerZoomLevel={90}
           attributionControl={false}
-          className={`leaflet-map ${panel === 'marker' || copyingMonster ? 'is-picking' : ''}`}
+          className={`leaflet-map ${panel === 'marker' || copyingMarker ? 'is-picking' : ''}`}
         >
           <ImageOverlay url={selectedMap.image} bounds={bounds} />
           <MapCommands mapDefinition={selectedMap} resetSignal={resetSignal} />
           <MarkerScaleController />
-          <PositionPicker enabled={panel === 'marker' || Boolean(copyingMonster)} mapDefinition={selectedMap} onPick={pickMapPosition} />
+          <PositionPicker enabled={panel === 'marker' || Boolean(copyingMarker)} mapDefinition={selectedMap} onPick={pickMapPosition} />
 
           {shownMarkers.map((marker) => {
             const linkedItemIds = new Set((marker.itemIds || []).map((id) => itemCatalog.canonicalIdById.get(id) || id));
@@ -626,10 +628,10 @@ export default function MapExplorer() {
                         <div>{linkedItems.map((item) => <span key={item.id}>{item.image ? <img src={item.image} alt="" /> : <Package size={17} />}<small>{item.name}</small></span>)}</div>
                       </div>
                     )}
-                    {isAdmin && (marker.custom || marker.category === 'monster') && (
+                    {isAdmin && (marker.custom || marker.category === 'monster' || marker.category === 'npc') && (
                       <div className="popup-marker-actions">
                         {marker.custom && <button className="remove-marker-button" onClick={() => removeCustomMarker(marker.id)}>Remove this marker</button>}
-                        {marker.category === 'monster' && <button className="copy-monster-button" onClick={() => beginCopyMonster(marker)}><Copy size={14} /> Copy monster</button>}
+                        {(marker.category === 'monster' || marker.category === 'npc') && <button className="copy-marker-button" onClick={() => beginCopyMarker(marker)}><Copy size={14} /> Copy {marker.category === 'npc' ? 'NPC' : 'monster'}</button>}
                       </div>
                     )}
                   </div>
@@ -643,11 +645,11 @@ export default function MapExplorer() {
           )}
         </MapContainer>
 
-        {copyingMonster && (
+        {copyingMarker && (
           <div className="copy-placement-banner" role="status">
             <Copy size={17} />
-            <span>Copying <b>{copyingMonster.name}</b> — click the map to place it.</span>
-            <button type="button" onClick={() => setCopyingMonster(null)}>Cancel</button>
+            <span>Copying <b>{copyingMarker.name}</b> — click the map to place it.</span>
+            <button type="button" onClick={() => setCopyingMarker(null)}>Cancel</button>
           </div>
         )}
 
