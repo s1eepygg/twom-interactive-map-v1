@@ -605,7 +605,7 @@ export default function MapExplorer() {
                     {marker.image && <img className={`popup-portrait popup-portrait--${marker.category}`} src={marker.image} alt="" />}
                     <p className={`popup-kicker popup-kicker--${marker.category}`}>{categoryMeta[marker.category].icon} {categoryMeta[marker.category].label}{marker.category === 'monster' && monsterRank !== 'normal' ? ` - ${monsterRankMeta[monsterRank].label}` : ''}</p>
                     <h2>{marker.name}</h2>
-                    {marker.category === 'npc' && marker.coordinates && <p className="npc-coordinates">Coords · {marker.coordinates}</p>}
+                    {marker.category === 'npc' && marker.coordinates && <p className="npc-coordinates">{marker.coordinates}</p>}
                     {marker.summary && <p>{marker.summary}</p>}
                     {marker.category === 'npc' && marker.quests && marker.quests.length > 0 && (
                       <div className="npc-quests">
