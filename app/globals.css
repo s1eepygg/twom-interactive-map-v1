@@ -84,7 +84,7 @@ button { color: inherit; }
 .map-sprite-marker img { display: block; max-width: 68px; max-height: 72px; object-fit: contain; image-rendering: pixelated; }
 .map-pin-with-name { position: relative; display: block; width: 44px; height: 50px; }
 .map-marker-name--npc { position: absolute; bottom: calc(100% - 1px); left: 50%; max-width: 190px; overflow: hidden; color: #fff; font: 800 13px/1.15 var(--game-title-font), system-ui, sans-serif; letter-spacing: -.01em; pointer-events: none; text-align: center; text-overflow: ellipsis; text-shadow: -1px -1px 0 #1a2c3d, 1px -1px 0 #1a2c3d, -1px 1px 0 #1a2c3d, 1px 1px 0 #1a2c3d, 0 2px 0 #1a2c3d; transform: translateX(-50%); white-space: nowrap; transition: opacity .14s ease, visibility .14s ease; }
-.map-sprite-marker .map-marker-name--npc { bottom: calc(100% - 18px); }
+.map-sprite-marker .map-marker-name--npc { bottom: calc(100% - 34px); }
 .map-marker-shell:hover .map-sprite-marker { transform: translateY(-3px) scale(calc(var(--marker-zoom-scale) * 1.08)); filter: drop-shadow(0 7px 3px rgba(0,0,0,.5)) brightness(1.08); }
 .portal-marker { position: relative; display: grid; place-items: center; width: 42px; height: 42px; transform: scale(var(--marker-zoom-scale)); transform-origin: 50% 50%; filter: drop-shadow(0 4px 3px rgba(0,0,0,.5)); transition: transform .16s ease, filter .16s ease; }
 .portal-marker img { width: 37px; height: 38px; object-fit: contain; image-rendering: pixelated; }
