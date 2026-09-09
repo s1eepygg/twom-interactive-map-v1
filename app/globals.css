@@ -799,3 +799,122 @@ body {
   background-image: linear-gradient(rgba(53, 68, 95, .96), rgba(42, 56, 81, .98));
   background-size: auto;
 }
+
+/* Crafted items use the same clean, frameless presentation as monster drops. */
+.popup-items--crafts span {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.popup-items--crafts img,
+.popup-items--crafts span > svg {
+  width: 36px;
+  height: 36px;
+  border-radius: 0;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.popup-items--crafts small {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.npc-coordinates {
+  margin: -2px 0 8px !important;
+  color: #b5c1d2 !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  opacity: .78;
+}
+
+.npc-quests {
+  clear: both;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(226, 238, 255, .2);
+  border-radius: 8px;
+  background: rgba(24, 36, 57, .34);
+}
+.npc-quests > b {
+  color: #ffe66b;
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.leaflet-container .popup-content .npc-quests ul {
+  margin: 7px 0 0;
+  padding: 0;
+  border: 0;
+  list-style: none;
+}
+.leaflet-container .popup-content .npc-quests li {
+  position: relative;
+  padding: 3px 0 3px 14px;
+  font-size: 13px;
+}
+.leaflet-container .popup-content .npc-quests li::before {
+  position: absolute;
+  left: 0;
+  color: #ffe66b;
+  content: '◆';
+  font-size: 7px;
+  top: 7px;
+}
+
+.npc-fields {
+  margin-top: 14px;
+  padding-top: 2px;
+}
+.quest-create-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+.quest-create-row .button {
+  min-height: 42px;
+  padding-inline: 14px;
+}
+.quest-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+}
+.quest-chip-list > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 4px 7px 4px 10px;
+  border: 1px solid rgba(255, 230, 107, .35);
+  border-radius: 7px;
+  color: #f3f7ff;
+  background: rgba(31, 44, 67, .58);
+  font-size: 12px;
+  font-weight: 700;
+}
+.quest-chip-list button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  color: #ff9ca6;
+  background: transparent;
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+}
+.duplicate-item-warning {
+  margin: 6px 0 0;
+  color: #ffbdc2;
+  font-size: 12px;
+  font-weight: 700;
+}

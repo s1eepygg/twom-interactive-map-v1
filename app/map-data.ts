@@ -32,6 +32,8 @@ export type MapMarker = {
   level?: string;
   hp?: string;
   monsterRank?: MonsterRank;
+  coordinates?: string;
+  quests?: string[];
   itemIds?: string[];
   itemMode?: ItemMode;
   custom?: boolean;

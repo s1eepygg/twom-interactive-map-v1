@@ -56,6 +56,33 @@ function mergeUniqueById<T extends { id: string }>(...groups: T[][]): T[] {
   return [...records.values()];
 }
 
+function normalizeItemName(name: string) {
+  return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+}
+
+function mergeUniqueItems(...groups: ItemRecord[][]) {
+  const itemsByName = new Map<string, ItemRecord>();
+  const itemNameById = new Map<string, string>();
+
+  for (const group of groups) {
+    for (const item of group) {
+      const nameKey = normalizeItemName(item.name) || `id:${item.id}`;
+      const existing = itemsByName.get(nameKey);
+      itemNameById.set(item.id, nameKey);
+      itemsByName.set(nameKey, existing
+        ? { ...existing, ...item, id: existing.id, custom: existing.custom || item.custom }
+        : item);
+    }
+  }
+
+  const canonicalIdById = new Map<string, string>();
+  for (const [id, nameKey] of itemNameById) {
+    canonicalIdById.set(id, itemsByName.get(nameKey)?.id || id);
+  }
+
+  return { items: [...itemsByName.values()], canonicalIdById };
+}
+
 function getBounds(map: MapDefinition): LatLngBoundsExpression {
   return [[0, 0], [map.height, map.width]];
 }
@@ -199,13 +226,16 @@ type DraftMarker = {
   level: string;
   hp: string;
   monsterRank: MonsterRank;
+  coordinates: string;
+  quests: string[];
+  questInput: string;
   itemIds: string[];
   itemMode: ItemMode;
 };
 
 const blankDraft: DraftMarker = {
   name: '', category: 'npc', summary: '', x: null, y: null,
-  spawnTime: '', level: '', hp: '', monsterRank: 'normal', itemIds: [], itemMode: 'sells',
+  spawnTime: '', level: '', hp: '', monsterRank: 'normal', coordinates: '', quests: [], questInput: '', itemIds: [], itemMode: 'sells',
 };
 
 export default function MapExplorer() {
@@ -245,9 +275,16 @@ export default function MapExplorer() {
 
   const selectedMap = maps.find((map) => map.id === selectedMapId) || maps[0];
   const bounds = getBounds(selectedMap);
-  // A record can exist in both the published JSON and browser localStorage after
-  // an export. Keep one copy so counts, icons, and linked drops stay accurate.
-  const allItems = useMemo(() => mergeUniqueById(starterItems, customItems, publishedItems), [customItems, publishedItems]);
+  // Records created on different devices have different IDs. Use the normalized
+  // item name as their shared identity and retain aliases for existing marker links.
+  const itemCatalog = useMemo(
+    () => mergeUniqueItems(starterItems, publishedItems, customItems),
+    [customItems, publishedItems],
+  );
+  const allItems = itemCatalog.items;
+  const duplicateItemName = Boolean(newItemName.trim()) && allItems.some(
+    (item) => normalizeItemName(item.name) === normalizeItemName(newItemName),
+  );
   const allMarkers = useMemo(
     () => mergeUniqueById(starterMarkers, customMarkers, publishedMarkers).filter((marker) => !removedMarkerIds.has(marker.id)),
     [customMarkers, publishedMarkers, removedMarkerIds],
@@ -314,13 +351,15 @@ export default function MapExplorer() {
           level: { type: 'string' },
           hp: { type: 'string' },
           monsterRank: { type: 'string', enum: ['normal', 'mini-boss', 'boss', 'raid-boss'] },
+          coordinates: { type: 'string' },
+          quests: { type: 'array', items: { type: 'string' } },
         },
         required: ['mapId', 'name', 'category', 'x', 'y'],
         additionalProperties: false,
       },
       annotations: { readOnlyHint: false, untrustedContentHint: false },
       execute(raw: unknown) {
-        const input = raw as Partial<{ mapId: string; name: string; category: MarkerCategory; x: number; y: number; summary: string; spawnTime: string; level: string; hp: string; monsterRank: MonsterRank }>;
+        const input = raw as Partial<{ mapId: string; name: string; category: MarkerCategory; x: number; y: number; summary: string; spawnTime: string; level: string; hp: string; monsterRank: MonsterRank; coordinates: string; quests: string[] }>;
         if (!input.mapId || !maps.some((map) => map.id === input.mapId) || !input.name?.trim() || !input.category || !categories.includes(input.category) || typeof input.x !== 'number' || typeof input.y !== 'number' || input.x < 0 || input.x > 100 || input.y < 0 || input.y > 100) {
           throw new Error('Provide a valid map, name, category, and x/y percentages.');
         }
@@ -330,6 +369,8 @@ export default function MapExplorer() {
           level: input.category === 'monster' ? input.level?.trim() : undefined,
           hp: input.category === 'monster' ? input.hp?.trim() : undefined,
           monsterRank: input.category === 'monster' ? input.monsterRank || 'normal' : undefined,
+          coordinates: input.category === 'npc' ? input.coordinates?.trim() : undefined,
+          quests: input.category === 'npc' ? (input.quests || []).map((quest) => quest.trim()).filter(Boolean) : undefined,
           itemIds: [], itemMode: input.category === 'monster' ? 'drops' : 'sells', details: [],
         });
         return { id: marker.id, mapId: marker.mapId, name: marker.name };
@@ -370,6 +411,8 @@ export default function MapExplorer() {
       level: draft.category === 'monster' ? draft.level.trim() : undefined,
       hp: draft.category === 'monster' ? draft.hp.trim() : undefined,
       monsterRank: draft.category === 'monster' ? draft.monsterRank : undefined,
+      coordinates: draft.category === 'npc' ? draft.coordinates.trim() : undefined,
+      quests: draft.category === 'npc' ? draft.quests : undefined,
       itemIds: draft.category === 'npc' || draft.category === 'monster' ? draft.itemIds : [],
       itemMode: draft.category === 'monster' ? 'drops' : draft.itemMode,
       details: [],
@@ -424,6 +467,10 @@ export default function MapExplorer() {
 
   function saveItem() {
     if (!newItemName.trim()) return;
+    if (duplicateItemName) {
+      setSavedMessage(`${newItemName.trim()} already exists in the Item Library.`);
+      return;
+    }
     const item: ItemRecord = {
       id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       name: newItemName.trim(), image: newItemImage, custom: true,
@@ -455,13 +502,34 @@ export default function MapExplorer() {
     }));
   }
 
+  function addDraftQuest() {
+    const quest = draft.questInput.trim();
+    if (!quest) return;
+    setDraft((current) => ({
+      ...current,
+      quests: current.quests.some((entry) => entry.toLocaleLowerCase() === quest.toLocaleLowerCase())
+        ? current.quests
+        : [...current.quests, quest],
+      questInput: '',
+    }));
+  }
+
+  function removeDraftQuest(quest: string) {
+    setDraft((current) => ({ ...current, quests: current.quests.filter((entry) => entry !== quest) }));
+  }
+
   function exportAdminData() {
-    // Keep previously published records when exporting new browser-local edits.
-    // The map-data.ts starter records remain code-owned and are intentionally not duplicated here.
-    const items = Array.from(new Map([...publishedItems, ...customItems].map((item) => [item.id, item])).values());
+    // Keep one canonical item per name and remap IDs created on other devices.
+    const exportCatalog = mergeUniqueItems(starterItems, publishedItems, customItems);
+    const starterItemIds = new Set(starterItems.map((item) => item.id));
+    const items = exportCatalog.items.filter((item) => !starterItemIds.has(item.id));
     const markers = Array.from(new Map([...publishedMarkers, ...customMarkers].map((marker) => [marker.id, marker])).values())
       .filter((marker) => !removedMarkerIds.has(marker.id));
-    const content = JSON.stringify({ version: 1, items, markers }, null, 2);
+    const remappedMarkers = markers.map((marker) => ({
+      ...marker,
+      itemIds: [...new Set((marker.itemIds || []).map((id) => exportCatalog.canonicalIdById.get(id) || id))],
+    }));
+    const content = JSON.stringify({ version: 1, items, markers: remappedMarkers }, null, 2);
     const url = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
     const link = document.createElement('a');
     link.href = url;
@@ -525,7 +593,8 @@ export default function MapExplorer() {
           <PositionPicker enabled={panel === 'marker' || Boolean(copyingMonster)} mapDefinition={selectedMap} onPick={pickMapPosition} />
 
           {shownMarkers.map((marker) => {
-            const linkedItems = allItems.filter((item) => marker.itemIds?.includes(item.id));
+            const linkedItemIds = new Set((marker.itemIds || []).map((id) => itemCatalog.canonicalIdById.get(id) || id));
+            const linkedItems = allItems.filter((item) => linkedItemIds.has(item.id));
             const visibleDetails = (marker.details || []).filter((detail) => detail !== 'Added in Marker Studio' && detail !== 'Saved on this device');
             const monsterRank = marker.monsterRank && monsterRankMeta[marker.monsterRank] ? marker.monsterRank : 'normal';
             return (
@@ -536,7 +605,14 @@ export default function MapExplorer() {
                     {marker.image && <img className={`popup-portrait popup-portrait--${marker.category}`} src={marker.image} alt="" />}
                     <p className={`popup-kicker popup-kicker--${marker.category}`}>{categoryMeta[marker.category].icon} {categoryMeta[marker.category].label}{marker.category === 'monster' && monsterRank !== 'normal' ? ` - ${monsterRankMeta[monsterRank].label}` : ''}</p>
                     <h2>{marker.name}</h2>
+                    {marker.category === 'npc' && marker.coordinates && <p className="npc-coordinates">Coords · {marker.coordinates}</p>}
                     {marker.summary && <p>{marker.summary}</p>}
+                    {marker.category === 'npc' && marker.quests && marker.quests.length > 0 && (
+                      <div className="npc-quests">
+                        <b>Quests</b>
+                        <ul>{marker.quests.map((quest) => <li key={quest}>{quest}</li>)}</ul>
+                      </div>
+                    )}
                     {marker.category === 'monster' && (marker.level || marker.hp || (marker.monsterRank && marker.monsterRank !== 'normal')) && (
                       <div className="monster-stats">
                         {marker.level && <span><b>LV</b>{marker.level}</span>}
@@ -613,6 +689,19 @@ export default function MapExplorer() {
               <label className="field-label" htmlFor="marker-notes">Short description</label>
               <textarea id="marker-notes" className="text-input text-area" placeholder="What should players know?" value={draft.summary} onChange={(event) => setDraft((current) => ({ ...current, summary: event.target.value }))} />
 
+              {draft.category === 'npc' && (
+                <div className="npc-fields">
+                  <label className="field-label" htmlFor="npc-coordinates">Coords</label>
+                  <input id="npc-coordinates" className="text-input" inputMode="numeric" placeholder="e.g. 123, 456" value={draft.coordinates} onChange={(event) => setDraft((current) => ({ ...current, coordinates: event.target.value }))} />
+                  <label className="field-label" htmlFor="npc-quest">Quests</label>
+                  <div className="quest-create-row">
+                    <input id="npc-quest" className="text-input" placeholder="Enter a quest name" value={draft.questInput} onChange={(event) => setDraft((current) => ({ ...current, questInput: event.target.value }))} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addDraftQuest(); } }} />
+                    <button type="button" className="button button--primary" disabled={!draft.questInput.trim()} onClick={addDraftQuest}><Plus size={16} /> Add</button>
+                  </div>
+                  {draft.quests.length > 0 && <div className="quest-chip-list">{draft.quests.map((quest) => <span key={quest}>{quest}<button type="button" onClick={() => removeDraftQuest(quest)} aria-label={`Remove ${quest}`}>×</button></span>)}</div>}
+                </div>
+              )}
+
               {draft.category === 'monster' && <>
                 <label className="field-label" htmlFor="monster-rank">Monster category</label>
                 <select id="monster-rank" className="text-input monster-rank-select" value={draft.monsterRank} onChange={(event) => setDraft((current) => ({ ...current, monsterRank: event.target.value as MonsterRank }))}>
@@ -654,7 +743,8 @@ export default function MapExplorer() {
                 <input type="file" accept="image/*" onChange={(event) => void handleImage(event.target.files?.[0], 'item')} />
               </label>
               <label className="field-label" htmlFor="item-name">Item name</label>
-              <div className="item-create-row"><input id="item-name" className="text-input" placeholder="e.g. Ancient Leaf" value={newItemName} onChange={(event) => setNewItemName(event.target.value)} /><button className="button button--primary" disabled={!newItemName.trim()} onClick={saveItem}><Plus size={16} /> Create</button></div>
+              <div className="item-create-row"><input id="item-name" className="text-input" placeholder="e.g. Ancient Leaf" value={newItemName} onChange={(event) => setNewItemName(event.target.value)} /><button className="button button--primary" disabled={!newItemName.trim() || duplicateItemName} onClick={saveItem}><Plus size={16} /> Create</button></div>
+              {duplicateItemName && <p className="duplicate-item-warning">An item with this name already exists.</p>}
               <div className="library-list">
                 <p>{allItems.length} reusable items</p>
                 {allItems.map((item) => <div className="library-item" key={item.id}>{item.image ? <img src={item.image} alt="" /> : <span><Package size={19} /></span>}<b>{item.name}</b>{item.custom && <button onClick={() => removeItem(item.id)}>Remove</button>}</div>)}
