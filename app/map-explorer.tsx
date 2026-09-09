@@ -66,6 +66,12 @@ function escapeHtml(value: string) {
   })[character] || character);
 }
 
+function npcNameLabel(category: MarkerCategory, name: string) {
+  return category === 'npc' && name
+    ? `<span class="map-marker-name map-marker-name--npc">${escapeHtml(name)}</span>`
+    : '';
+}
+
 function mergeUniqueItems(...groups: ItemRecord[][]) {
   const itemsByName = new Map<string, ItemRecord>();
   const itemNameById = new Map<string, string>();
@@ -119,7 +125,7 @@ function markerIcon(category: MarkerCategory, image?: string, name = '') {
   if (image) {
     return L.divIcon({
       className: 'map-marker-shell',
-      html: `<span class="map-sprite-marker map-sprite-marker--${category}"><img src="${image}" alt="" /></span>`,
+      html: `<span class="map-sprite-marker map-sprite-marker--${category}">${npcNameLabel(category, name)}<img src="${image}" alt="" /></span>`,
       iconSize: [68, 72],
       iconAnchor: [34, 66],
       popupAnchor: [0, -60],
@@ -128,7 +134,7 @@ function markerIcon(category: MarkerCategory, image?: string, name = '') {
   }
   return L.divIcon({
     className: 'map-marker-shell',
-    html: `<span class="map-marker map-marker--${category}" style="--marker-color:${meta.color}"><img src="./ui/marker-active.png" alt="" /><span>${meta.icon}</span></span>`,
+    html: `<span class="map-pin-with-name">${npcNameLabel(category, name)}<span class="map-marker map-marker--${category}" style="--marker-color:${meta.color}"><img src="./ui/marker-active.png" alt="" /><span>${meta.icon}</span></span></span>`,
     iconSize: [44, 50],
     iconAnchor: [22, 43],
     popupAnchor: [0, -39],
