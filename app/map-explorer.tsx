@@ -205,7 +205,7 @@ function MarkerNameVisibilityController() {
 }
 
 function MobileMapTap({ onMapTap }: { onMapTap: () => void }) {
-  useMapEvents({ click: onMapTap });
+  useMapEvents({ click: onMapTap, popupopen: onMapTap });
   return null;
 }
 
