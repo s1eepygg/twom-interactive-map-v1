@@ -177,6 +177,38 @@ function MarkerScaleController() {
   return null;
 }
 
+function MarkerNameVisibilityController() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    // Keep the overview readable. Labels appear after the player zooms in
+    // beyond the initial fit-to-map zoom level.
+    const nameZoom = map.getZoom() + 0.75;
+    const updateVisibility = (zoom = map.getZoom()) => {
+      container.classList.toggle('show-marker-names', zoom >= nameZoom);
+    };
+    const onZoom = () => updateVisibility();
+    const onZoomAnimation = (event: L.ZoomAnimEvent) => updateVisibility(event.zoom);
+
+    updateVisibility();
+    map.on('zoom', onZoom);
+    map.on('zoomanim', onZoomAnimation);
+    return () => {
+      map.off('zoom', onZoom);
+      map.off('zoomanim', onZoomAnimation);
+      container.classList.remove('show-marker-names');
+    };
+  }, [map]);
+
+  return null;
+}
+
+function MobileMapTap({ onMapTap }: { onMapTap: () => void }) {
+  useMapEvents({ click: onMapTap });
+  return null;
+}
+
 function PositionPicker({
   enabled,
   mapDefinition,
@@ -276,10 +308,23 @@ export default function MapExplorer() {
   const [copyingMarker, setCopyingMarker] = useState<MapMarker | null>(null);
   const [isAdmin] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === '1');
   const [isTouchDevice, setIsTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none), (pointer: coarse)').matches);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [mobileTopbarCollapsed, setMobileTopbarCollapsed] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia('(hover: none), (pointer: coarse)');
     const update = () => setIsTouchDevice(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 760px)');
+    const update = () => {
+      setIsMobileViewport(media.matches);
+      if (!media.matches) setMobileTopbarCollapsed(false);
+    };
     update();
     media.addEventListener?.('change', update);
     return () => media.removeEventListener?.('change', update);
@@ -561,7 +606,8 @@ export default function MapExplorer() {
 
   return (
     <main className="map-app">
-      <header className="topbar">
+      <header className={`topbar ${mobileTopbarCollapsed ? 'is-collapsed' : ''}`}>
+        <button type="button" className="mobile-topbar-toggle" onClick={() => setMobileTopbarCollapsed(false)} aria-label="Expand map controls"><img src="./ui/menu-map.png" alt="" /></button>
         <div className="brand-lockup">
           <span className="brand-mark" aria-hidden="true"><img src="./ui/menu-map.png" alt="" /></span>
           <div><p className="eyebrow">TWOM World Atlas / {selectedMap.zone}</p><h1>{selectedMap.name}</h1></div>
@@ -604,6 +650,8 @@ export default function MapExplorer() {
           <ImageOverlay url={selectedMap.image} bounds={bounds} />
           <MapCommands mapDefinition={selectedMap} resetSignal={resetSignal} />
           <MarkerScaleController />
+          <MarkerNameVisibilityController />
+          {isMobileViewport && <MobileMapTap onMapTap={() => setMobileTopbarCollapsed(true)} />}
           <PositionPicker enabled={panel === 'marker' || Boolean(copyingMarker)} mapDefinition={selectedMap} onPick={pickMapPosition} />
 
           {shownMarkers.map((marker) => {
